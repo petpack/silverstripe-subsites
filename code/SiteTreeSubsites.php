@@ -347,7 +347,10 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 	 */
 	static function modelascontrollerInit($controller) {
 		// Need to set the SubsiteID to null incase we've been in the CMS
-		Session::set('SubsiteID', null);
+		// Prevent this happening from a request to favicon.ico - this prevents /admin/publishall working on a non-default subsite
+		if( $_SERVER['REQUEST_URI'] != '/favicon.ico' ) {
+			Session::set('SubsiteID', null);
+		}
 	}
 	
 	function alternateAbsoluteLink() {
