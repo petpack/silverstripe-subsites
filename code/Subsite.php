@@ -248,6 +248,20 @@ JS;
 	}
 	
 	/**
+	 * Returns true if a subsite id is set, false otherwise.
+	 * 
+	 * @return bool
+	 * @author Alex Hayes <alex.hayes@dimension27.com>
+	 */
+	static function isSubsite() {
+		$subsiteId = self::currentSubsiteID();
+		if( $subsiteId > 0 ) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Switch to another subsite.
 	 *
 	 * @param int|Subsite $subsite Either the ID of the subsite, or the subsite object itself
