@@ -74,6 +74,16 @@ class Subsite extends DataObject implements PermissionProvider {
 	 */
 	protected static $allowed_themes = array();
 
+	/**
+	 * Signifies if subsites has been disabled temporarily using self::temporarily_disable_subsite()
+	 * 
+	 * @var int
+	 * @see self::temporarily_disable_subsite()
+	 * @see self::restore_previous_subsite()
+	 * @author Alex Hayes <alex.hayes@dimension27.com>
+	 */
+	static $previous_subsite_id = null;
+
 	static function set_allowed_domains($domain){
 		user_error('Subsite::set_allowed_domains() is deprecated; it is no longer necessary '
 			. 'because users can now enter any domain name', E_USER_NOTICE);
@@ -562,6 +572,46 @@ JS;
 	 */
 	static function disable_subsite_filter($disabled = true) {
 		self::$disable_subsite_filter = $disabled;
+	}
+	
+	/**
+	 * Sets the subsite to '0' providing ability to restore it at a later date using restore_previous_subsite
+	 *
+	 * <code>
+	 * Subsite::temporarily_disable_subsite();
+	 * // Do something....
+	 * Subsite::restore_previous_subsite();
+	 * </code>
+	 * 
+	 * @return bool    True if the subsite could be disabled, false if the current subsite is already 0.
+	 * 
+	 * @see self::restore_previous_subsite()
+	 * @author Alex Hayes <alex.hayes@dimension27.com>
+	 */
+	static function temporarily_disable_subsite() {
+		$current_subsite_id = Subsite::currentSubsiteID();
+		if( $current_subsite_id == 0 ) {
+			return false;
+		}
+		self::$previous_subsite_id = $current_subsite_id; 
+		Subsite::changeSubsite(0);
+		return true;
+	}
+	
+	/**
+	 * Restores the previous subsite before temporarily_disable_subsite was called.
+	 *
+	 * @return bool    True if the subsite could be restore, false if there is no previous subsite to restore.
+	 * 
+	 * @see self::temporarily_disable_subsite()
+	 * @author Alex Hayes <alex.hayes@dimension27.com>
+	 */
+	static function restore_previous_subsite() {
+		if( !is_null(self::$previous_subsite_id) ) {
+			Subsite::changeSubsite(self::$previous_subsite_id);
+			return true;
+		}
+		return false;
 	}
 }
 
