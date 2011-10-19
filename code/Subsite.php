@@ -583,18 +583,20 @@ JS;
 	 * Subsite::restore_previous_subsite();
 	 * </code>
 	 * 
-	 * @return bool    True if the subsite could be disabled, false if the current subsite is already 0.
+	 * @param int $subsite_id     Temporarily set the subsite to this id.
+	 * @return bool               True if the subsite could be changed, false if the current subsite 
+	 *                            is already set to $subsite_id
 	 * 
 	 * @see self::restore_previous_subsite()
 	 * @author Alex Hayes <alex.hayes@dimension27.com>
 	 */
-	static function temporarily_disable_subsite() {
+	static function temporarily_set_subsite( $subsite_id = 0 ) {
 		$current_subsite_id = Subsite::currentSubsiteID();
-		if( $current_subsite_id == 0 ) {
+		if( $current_subsite_id == $subsite_id ) {
 			return false;
 		}
 		self::$previous_subsite_id = $current_subsite_id; 
-		Subsite::changeSubsite(0);
+		Subsite::changeSubsite($subsite_id);
 		return true;
 	}
 	
