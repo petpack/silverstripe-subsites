@@ -280,6 +280,8 @@ JS;
 	static function changeSubsite($subsite) {
 		if(is_object($subsite)) $subsiteID = $subsite->ID;
 		else $subsiteID = $subsite;
+
+		//* debug */ Debug::message('changeSubsite: ' . $subsiteID . " Trace: \n" . SS_Backtrace::get_rendered_backtrace(debug_backtrace(), true));
 		
 		Session::set('SubsiteID', (int)$subsiteID);
 		
@@ -593,9 +595,11 @@ JS;
 	static function temporarily_set_subsite( $subsite_id = 0 ) {
 		$current_subsite_id = Subsite::currentSubsiteID();
 		if( $current_subsite_id == $subsite_id ) {
+			//* debug */ Debug::message('ignore temporarily_set_subsite: ' . $subsite_id);
 			return false;
 		}
-		self::$previous_subsite_id = $current_subsite_id; 
+		self::$previous_subsite_id = $current_subsite_id;
+		//* debug */ Debug::message('temporarily_set_subsite to ' . $subsite_id . ' - currently ' . $current_subsite_id); 
 		Subsite::changeSubsite($subsite_id);
 		return true;
 	}
@@ -610,9 +614,11 @@ JS;
 	 */
 	static function restore_previous_subsite() {
 		if( !is_null(self::$previous_subsite_id) ) {
+			//* debug */ Debug::message('restore_previous_subsite: ' . self::$previous_subsite_id);
 			Subsite::changeSubsite(self::$previous_subsite_id);
 			return true;
 		}
+		//* debug */ Debug::message('ignore restore_previous_subsite');
 		return false;
 	}
 }
