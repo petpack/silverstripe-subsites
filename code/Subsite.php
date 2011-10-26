@@ -77,12 +77,12 @@ class Subsite extends DataObject implements PermissionProvider {
 	/**
 	 * Signifies if subsites has been disabled temporarily using self::temporarily_disable_subsite()
 	 * 
-	 * @var int
+	 * @var array(int)
 	 * @see self::temporarily_disable_subsite()
 	 * @see self::restore_previous_subsite()
 	 * @author Alex Hayes <alex.hayes@dimension27.com>
 	 */
-	static $previous_subsite_id = null;
+	static $previous_subsite_ids = array();
 
 	static function set_allowed_domains($domain){
 		user_error('Subsite::set_allowed_domains() is deprecated; it is no longer necessary '
@@ -598,7 +598,7 @@ JS;
 			//* debug */ Debug::message('ignore temporarily_set_subsite: ' . $subsite_id);
 			return false;
 		}
-		self::$previous_subsite_id = $current_subsite_id;
+		self::$previous_subsite_ids[] = $current_subsite_id;
 		//* debug */ Debug::message('temporarily_set_subsite to ' . $subsite_id . ' - currently ' . $current_subsite_id); 
 		Subsite::changeSubsite($subsite_id);
 		return true;
@@ -613,9 +613,10 @@ JS;
 	 * @author Alex Hayes <alex.hayes@dimension27.com>
 	 */
 	static function restore_previous_subsite() {
-		if( !is_null(self::$previous_subsite_id) ) {
-			//* debug */ Debug::message('restore_previous_subsite: ' . self::$previous_subsite_id);
-			Subsite::changeSubsite(self::$previous_subsite_id);
+		if( self::$previous_subsite_ids ) {
+			$previousId = array_pop(self::$previous_subsite_ids);
+			//* debug */ Debug::message('restore_previous_subsite: ' . $previousId);
+			Subsite::changeSubsite($previousId);
 			return true;
 		}
 		//* debug */ Debug::message('ignore restore_previous_subsite');
