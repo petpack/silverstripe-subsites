@@ -592,7 +592,12 @@ JS;
 	 * @see self::restore_previous_subsite()
 	 * @author Alex Hayes <alex.hayes@dimension27.com>
 	 */
-	static function temporarily_set_subsite( $subsite_id = 0 ) {
+	static function temporarily_set_subsite( $subsite = 0 ) {
+		if( is_object($subsite) && $subsite instanceof Subsite ) {
+			$subsite_id = $subsite->ID;
+		} else {
+			$subsite_id = $subsite;
+		}
 		$current_subsite_id = Subsite::currentSubsiteID();
 		if( $current_subsite_id == $subsite_id ) {
 			//* debug */ Debug::message('ignore temporarily_set_subsite: ' . $subsite_id);
