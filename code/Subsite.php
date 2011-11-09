@@ -511,6 +511,8 @@ JS;
 	 * This is used primarily when using subsites in conjunction with StaticPublisher
 	 *
 	 * @return void
+	 * @scalability-concern Selection of ALL subsites is done, a better approach, however more difficult
+	 *                      approach would be to append the file on create and modify on update/delete.
 	 */
 	static function writeHostMap($file = null) {
 		if (!self::$write_hostmap) return;
