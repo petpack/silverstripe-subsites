@@ -146,7 +146,10 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 		// replace readonly link prefix
 		$subsite = $this->owner->Subsite();
 		if($subsite && $subsite->ID) {
-			$baseUrl = 'http://' . $subsite->domain() . '/';
+			$baseUrl = Controller::join_links (
+				'http://' . $subsite->domain() . '/',
+				(SiteTree::nested_urls() && $this->owner->ParentID ? $this->owner->Parent()->RelativeLink(true) : null)
+			);
 			$fields->removeByName('BaseUrlLabel');
 			$fields->addFieldToTab(
 				'Root.Content.Metadata',
