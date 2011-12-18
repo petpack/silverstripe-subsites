@@ -629,6 +629,13 @@ JS;
 		//* debug */ Debug::message('ignore restore_previous_subsite');
 		return false;
 	}
+	
+	static public function call_func_without_subsite($callback, $args) {
+		self::temporarily_set_subsite();
+		$rv = call_user_func_array($callback, $args);
+		self::restore_previous_subsite();
+		return $rv;
+	}
 }
 
 /**
