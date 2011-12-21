@@ -630,9 +630,9 @@ JS;
 		return false;
 	}
 	
-	static public function call_func_without_subsite($callback, $args) {
+	static public function call_func_without_subsite($callback, $args = null) {
 		self::temporarily_set_subsite();
-		$rv = call_user_func_array($callback, $args);
+		$rv = $args ? call_user_func_array($callback, $args) : call_user_func($callback);
 		self::restore_previous_subsite();
 		return $rv;
 	}
