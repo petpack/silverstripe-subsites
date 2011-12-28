@@ -582,19 +582,37 @@ JS;
 	 * Sets the subsite to '0' providing ability to restore it at a later date using restore_previous_subsite
 	 *
 	 * <code>
-	 * Subsite::temporarily_disable_subsite();
+	 * Subsite::temporarily_set_subsite();
 	 * // Do something....
 	 * Subsite::restore_previous_subsite();
 	 * </code>
 	 * 
-	 * @param int $subsite_id     Temporarily set the subsite to this id.
-	 * @return bool               True if the subsite could be changed, false if the current subsite 
-	 *                            is already set to $subsite_id
+	 * or...
+	 * 
+	 * <code>
+	 * $subsite->temporarily_set_subsite();
+	 * // Do something....
+	 * $subsite->restore_previous_subsite();
+	 * </code>
+	 * 
+	 * @param null|int|Subsite $subsite     Temporarily set the subsite, the following outlines the behaviour of this
+	 *                                      method:
+	 *                                      - null: if called from an instance then the subsite is assumed 
+	 *                                              to the instance, however if called statically called then
+	 *                                              the subsite is set to 0 (ie no subsite).
+	 *                                      - int: assumed this is subsite id.
+	 *                                      - Subsite: sets the temporary subsite to this Subsite's id.
+	 *                                             
+	 * @return bool                         True if the subsite could be changed, false if the current subsite 
+	 *                                      is already set to $subsite_id
 	 * 
 	 * @see self::restore_previous_subsite()
 	 * @author Alex Hayes <alex.hayes@dimension27.com>
 	 */
-	static function temporarily_set_subsite( $subsite = 0 ) {
+	public function temporarily_set_subsite( $subsite = 0 ) {
+		if( is_int($subsite) && $subsite === 0 & isset($this) ) {
+			$subsite = $this;
+		}
 		if( is_object($subsite) && $subsite instanceof Subsite ) {
 			$subsite_id = $subsite->ID;
 		} else {
