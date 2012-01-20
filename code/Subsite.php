@@ -613,8 +613,13 @@ JS;
 		if( is_int($subsite) && $subsite === 0 & isset($this) ) {
 			$subsite = $this;
 		}
-		if( is_object($subsite) && $subsite instanceof Subsite ) {
+		if( is_object($subsite)) {
+		 if ($subsite instanceof Subsite ) {
 			$subsite_id = $subsite->ID;
+		 }
+		 else {
+		 	$subsite_id = 0;
+		 }
 		} else {
 			$subsite_id = $subsite;
 		}
