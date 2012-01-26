@@ -614,12 +614,7 @@ JS;
 			$subsite = $this;
 		}
 		if( is_object($subsite)) {
-		 if ($subsite instanceof Subsite ) {
-			$subsite_id = $subsite->ID;
-		 }
-		 else {
-		 	$subsite_id = 0;
-		 }
+			$subsite_id = $subsite instanceof Subsite ? $subsite->ID : 0;
 		} else {
 			$subsite_id = $subsite;
 		}
