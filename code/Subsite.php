@@ -247,7 +247,7 @@ JS;
 	 * @return int ID of the current subsite instance
 	 */
 	static function currentSubsiteID() {
-		if(isset($_REQUEST['SubsiteID'])) $id = (int)$_REQUEST['SubsiteID'];
+		if(isset($_REQUEST['SubsiteID']) && is_int($_REQUEST['SubsiteID']) ) $id = $_REQUEST['SubsiteID'];
 		else $id = Session::get('SubsiteID');
 
 		if($id === NULL) {
@@ -278,21 +278,18 @@ JS;
 	 * @param int|Subsite $subsite Either the ID of the subsite, or the subsite object itself
 	 */
 	static function changeSubsite($subsite) {
-		if(is_object($subsite)) $subsiteID = $subsite->ID;
+		if( is_object($subsite) ) $subsiteID = $subsite->ID;
 		else $subsiteID = $subsite;
 
 		//* debug */ Debug::message('changeSubsite: ' . $subsiteID . " Trace: \n" . SS_Backtrace::get_rendered_backtrace(debug_backtrace(), true));
-		
 		Session::set('SubsiteID', (int)$subsiteID);
-		
+		// currentSubsiteID() values the $_REQUEST over the session
+		if( isset($_REQUEST['SubsiteID']) ) unset($_REQUEST['SubsiteID']);
 		// Set locale
-		if (is_object($subsite) && $subsite->Language != '') {
-			if (isset(i18n::$likely_subtags[$subsite->Language])) {
-				i18n::set_locale(i18n::$likely_subtags[$subsite->Language]);
-			}
-		}
+		if( is_object($subsite) && $subsite->Language != '' && isset(i18n::$likely_subtags[$subsite->Language]) )
+			i18n::set_locale(i18n::$likely_subtags[$subsite->Language]);
 		
-		// Only bother flushing caches if we've actually changed
+		// Only flush the cache if the Subsite actually needed to be changed
 		if($subsiteID != self::currentSubsiteID()) Permission::flush_permission_cache();
 	}
 
@@ -647,11 +644,32 @@ JS;
 		//* debug */ Debug::message('ignore restore_previous_subsite');
 		return false;
 	}
+
+	static public function call_func_with_subsite($callback, $args = null) {
+		$filter = self::$disable_subsite_filter;
+		self::disable_subsite_filter(false);
+		$subsiteID = self::currentSubsiteID();
+		if( !$subsiteID && $_SESSION['SubsiteID'] )
+			self::temporarily_set_subsite($_SESSION['SubsiteID']);
+
+		if( $args && !is_array($args) ) $args = array($args);
+		$rv = $args ? call_user_func_array($callback, $args) : call_user_func($callback);
+
+		if( !$subsiteID ) self::restore_previous_subsite();
+		self::disable_subsite_filter($filter);
+
+		return $rv;
+	}
 	
 	static public function call_func_without_subsite($callback, $args = null) {
-		self::temporarily_set_subsite();
+		return self::call_func_on_subsite(0, $callback, $args);
+	}
+
+	static public function call_func_on_subsite($subsiteId, $callback, $args = null) {
+		self::temporarily_set_subsite($subsiteId);
+		if( $args && !is_array($args) ) $args = array($args);
 		$rv = $args ? call_user_func_array($callback, $args) : call_user_func($callback);
-		self::restore_previous_subsite();
+		self::restore_previous_subsite($subsiteId);
 		return $rv;
 	}
 }
