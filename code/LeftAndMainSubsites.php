@@ -114,11 +114,12 @@ class LeftAndMainSubsites extends Extension {
 	 * If security isn't found, then it will switch to a subsite where we do have access.
 	 */
 	public function alternateAccessCheck() {
+		$subsiteID = Subsite::call_func_with_subsite(array('Subsite', 'currentSubsiteID'));
 		$className = $this->owner->class;
 
 		// Switch to the subsite of the current page
 		if ($this->owner->class == 'CMSMain' && $currentPage = $this->owner->currentPage()) {
-			if (Subsite::currentSubsiteID() != $currentPage->SubsiteID) {
+			if( $subsiteID != $currentPage->SubsiteID ) {
 				Subsite::changeSubsite($currentPage->SubsiteID);
 			}
 		}
@@ -128,7 +129,7 @@ class LeftAndMainSubsites extends Extension {
 		if ($member && $member->isAdmin()) return true;	//admin can access all subsites
 				
 		$sites = Subsite::accessible_sites("CMS_ACCESS_{$this->owner->class}")->toDropdownMap();
-		if($sites && !isset($sites[Subsite::currentSubsiteID()])) {
+		if($sites && !isset($sites[$subsiteID])) {
 			$siteIDs = array_keys($sites);
 			Subsite::changeSubsite($siteIDs[0]);
 			return true;
@@ -138,9 +139,8 @@ class LeftAndMainSubsites extends Extension {
 		$menu = CMSMenu::get_menu_items();
 		foreach($menu as $candidate) {
 			if($candidate->controller != $this->owner->class) {
-					
 				$sites = Subsite::accessible_sites("CMS_ACCESS_{$candidate->controller}")->toDropdownMap();
-				if($sites && !isset($sites[Subsite::currentSubsiteID()])) {
+				if($sites && !isset($sites[$subsiteID])) {
 					$siteIDs = array_keys($sites);
 					Subsite::changeSubsite($siteIDs[0]);
 					$cClass = $candidate->controller;
