@@ -7,22 +7,23 @@
 	margin: 0;
 	right: 0;
 	top: 0;
-	width: 350px;
 	text-align: right;
 	margin-right: 130px;
 	height: 51px;
 	border-bottom: 3px solid #d4d0c8;
 	color: #fff;
 }
-	#SubsiteActions fieldset {
-		padding: 3px;
-		border-style: none;
-		margin-top: 1px;
-		background: none;
-	}
-		#SubsiteActions fieldset span {
-			padding: 3px;
-		}
+
+#SubsiteActions fieldset {
+	padding: 3px;
+	border-style: none;
+	margin-top: 1px;
+	background: none;
+}
+
+#SubsiteActions fieldset span {
+	padding: 3px;
+}
 
 #SubsitesSelect,
 #SubsitesSelect option {
