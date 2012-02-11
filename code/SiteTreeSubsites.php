@@ -340,7 +340,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 	 */
 	static function contentcontrollerInit($controller) {
 		// Need to set the SubsiteID to null incase we've been in the CMS
-		Session::set('SubsiteID', null);
+		Subsite::disable_subsite_selection();
 		$subsite = Subsite::currentSubsite();
 		if($subsite && $subsite->Theme) SSViewer::set_theme(Subsite::currentSubsite()->Theme);
 	}
@@ -352,7 +352,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 		// Need to set the SubsiteID to null incase we've been in the CMS
 		// Prevent this happening from a request to favicon.ico - this prevents /admin/publishall working on a non-default subsite
 		if( $_SERVER['REQUEST_URI'] != '/favicon.ico' ) {
-			Session::set('SubsiteID', null);
+			Subsite::disable_subsite_selection();
 		}
 	}
 	

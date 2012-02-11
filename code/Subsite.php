@@ -12,7 +12,13 @@ class Subsite extends DataObject implements PermissionProvider {
 	 * to limit DataObject::get*() calls to a specific subsite. Useful for debugging.
 	 */
 	static $disable_subsite_filter = false;
-	
+
+	/**
+	 * @var boolean $disable_subsite_selection If enabled, disables the selection of the 
+	 * current Subsite based on the SubsiteID in the Session.
+	 */
+	static $disable_subsite_selection = false;
+
 	/**
 	 * Allows you to force a specific subsite ID, or comma separated list of IDs.
 	 * Only works for reading. An object cannot be written to more than 1 subsite.
@@ -247,12 +253,16 @@ JS;
 	 * @return int ID of the current subsite instance
 	 */
 	static function currentSubsiteID() {
+		if( self::$disable_subsite_selection ) {
+			return self::getSubsiteIDForDomain();
+		}
+		
 		if(isset($_REQUEST['SubsiteID']) && is_int($_REQUEST['SubsiteID']) ) $id = $_REQUEST['SubsiteID'];
 		else $id = Session::get('SubsiteID');
 
 		if($id === NULL) {
 			$id = self::getSubsiteIDForDomain();
-			Session::set('SubsiteID', $id);
+			// Session::set('SubsiteID', $id);
 		}
 
 		return (int)$id;
@@ -316,7 +326,10 @@ JS;
 	 * @return int Subsite ID
 	 */
 	static function getSubsiteIDForDomain($host = null, $returnMainIfNotFound = true) {
+		static $subsiteForDomain = array();
+		
 		if($host == null) $host = $_SERVER['HTTP_HOST'];
+		if(isset($subsiteForDomain[$host])) return $subsiteForDomain[$host];
 		
 		$host = str_replace('www.','',$host);
 		$SQL_host = Convert::raw2sql($host);
@@ -328,11 +341,13 @@ JS;
 		if($matchingDomains) {
 			$subsiteIDs = array_unique($matchingDomains->column('SubsiteID'));
 			if(sizeof($subsiteIDs) > 1) user_error("Multiple subsites match '$host'", E_USER_WARNING);
+			$subsiteForDomain[$host] = $subsiteIDs[0];
 			return $subsiteIDs[0];
 		}
 		
 		// Check for a 'default' subsite
 		if ($default = DataObject::get_one('Subsite', "\"DefaultSite\" = 1")) {
+			$subsiteForDomain[$host] = $default->ID;
 			return $default->ID;
 		}
 		
@@ -573,6 +588,14 @@ JS;
 	 */
 	static function disable_subsite_filter($disabled = true) {
 		self::$disable_subsite_filter = $disabled;
+	}
+	
+	/**
+	 * Disables the selection of the current Subsite based on the SubsiteID in the Session.
+	 * @param boolean $disabled
+	 */
+	static function disable_subsite_selection($disabled = true) {
+		self::$disable_subsite_selection = $disabled;
 	}
 	
 	/**
