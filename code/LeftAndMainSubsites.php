@@ -120,7 +120,8 @@ class LeftAndMainSubsites extends Extension {
 		$className = $this->owner->class;
 
 		// Switch to the subsite of the current page
-		if ($this->owner->class == 'CMSMain' && $currentPage = $this->owner->currentPage()) {
+		// but only if this is a request for CMSMain (we're not just generating the menu)
+		if ($this->owner->class == 'CMSMain' && ($currentPage = $this->owner->currentPage()) && $this->owner->request ) {
 			if( $subsiteID != $currentPage->SubsiteID ) {
 				Subsite::changeSubsite($currentPage->SubsiteID);
 			}
