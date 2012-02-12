@@ -630,7 +630,7 @@ JS;
 	 * @author Alex Hayes <alex.hayes@dimension27.com>
 	 */
 	public function temporarily_set_subsite( $subsite = 0 ) {
-		if( is_int($subsite) && $subsite === 0 & isset($this) ) {
+		if( is_int($subsite) && $subsite === 0 && isset($this) ) {
 			$subsite = $this;
 		}
 		if( is_object($subsite)) {
