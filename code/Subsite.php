@@ -346,7 +346,7 @@ JS;
 		}
 		
 		// Check for a 'default' subsite
-		if ($default = DataObject::get_one('Subsite', "\"DefaultSite\" = 1")) {
+		if ($returnMainIfNotFound && ($default = DataObject::get_one('Subsite', "\"DefaultSite\" = 1"))) {
 			$subsiteForDomain[$host] = $default->ID;
 			return $default->ID;
 		}
