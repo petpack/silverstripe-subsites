@@ -81,10 +81,10 @@ class Subsite extends DataObject implements PermissionProvider {
 	protected static $allowed_themes = array();
 
 	/**
-	 * Signifies if subsites has been disabled temporarily using self::temporarily_disable_subsite()
+	 * Signifies if subsites has been disabled temporarily using self::temporarily_set_subsite()
 	 * 
 	 * @var array(int)
-	 * @see self::temporarily_disable_subsite()
+	 * @see self::temporarily_set_subsite()
 	 * @see self::restore_previous_subsite()
 	 * @author Alex Hayes <alex.hayes@dimension27.com>
 	 */
@@ -650,11 +650,11 @@ JS;
 	}
 	
 	/**
-	 * Restores the previous subsite before temporarily_disable_subsite was called.
+	 * Restores the previous subsite before temporarily_set_subsite was called.
 	 *
 	 * @return bool    True if the subsite could be restore, false if there is no previous subsite to restore.
 	 * 
-	 * @see self::temporarily_disable_subsite()
+	 * @see self::temporarily_set_subsite()
 	 * @author Alex Hayes <alex.hayes@dimension27.com>
 	 */
 	static function restore_previous_subsite() {
