@@ -1,7 +1,13 @@
 <?php
 
 class SiteTreeSubsitesTest extends SapphireTest {
+
 	static $fixture_file = 'subsites/tests/SubsiteTest.yml';
+	
+	protected $extraDataObjects = array(
+		'SiteTreeSubsitesTest_ClassA',
+		'SiteTreeSubsitesTest_ClassB'
+	);
 	
 	function testPagesInDifferentSubsitesCanShareURLSegment() {
 		$subsiteMain = $this->objFromFixture('Subsite_Template', 'main');
@@ -77,19 +83,6 @@ class SiteTreeSubsitesTest extends SapphireTest {
 		$this->assertEquals($link->RelatedPageAdminLink(), '<a href="admin/show/' . $contact->ID . '" class="cmsEditlink">Contact Us</a>');
 	}
 	
-	function testPageWithVirtualPagesGetsTable() {
-		$importantpage = $this->objFromFixture('SiteTree', 'importantpage');
-		
-		$link = new SubsitesVirtualPage();
-		$link->CopyContentFromID = $importantpage->ID;
-		$link->write();
-		$link->doPublish();
-	
-		$fields = $importantpage->getCMSFields();
-		
-		$this->assertNotNull($fields->fieldByName('Root.VirtualPages'));
-	}
-	
 	function testCanEditSiteTree() {
 		$admin = $this->objFromFixture('Member', 'admin');
 		$subsite1member = $this->objFromFixture('Member', 'subsite1member');
@@ -130,6 +123,9 @@ class SiteTreeSubsitesTest extends SapphireTest {
 		);
 	}
 	
+	/**
+	 * Similar to {@link SubsitesVirtualPageTest->testSubsiteVirtualPageCanHaveSameUrlsegmentAsOtherSubsite()}.
+	 */
 	function testTwoPagesWithSameURLOnDifferentSubsites() {
 		// Set up a couple of pages with the same URL on different subsites
 		$s1 = $this->objFromFixture('Subsite','domaintest1');
@@ -157,4 +153,65 @@ class SiteTreeSubsitesTest extends SapphireTest {
 		$this->assertEquals($p2->ID, SiteTree::get_by_link('test-page')->ID);
 	}
 	
+	function testPageTypesBlacklistInClassDropdown() {
+		Session::set("loggedInAs", null);
+		
+		$s1 = $this->objFromFixture('Subsite','domaintest1');
+		$s2 = $this->objFromFixture('Subsite','domaintest2');
+		$page = singleton('SiteTree');
+		
+		$s1->PageTypeBlacklist = 'SiteTreeSubsitesTest_ClassA,ErrorPage';
+		$s1->write();
+		
+		Subsite::changeSubsite($s1);
+		$this->assertArrayNotHasKey('ErrorPage', 
+			$page->getCMSFields()->dataFieldByName('ClassName')->getSource()
+		);
+		$this->assertArrayNotHasKey('SiteTreeSubsitesTest_ClassA', 
+			$page->getCMSFields()->dataFieldByName('ClassName')->getSource()
+		);
+		$this->assertArrayHasKey('SiteTreeSubsitesTest_ClassB', 
+			$page->getCMSFields()->dataFieldByName('ClassName')->getSource()
+		);
+
+		Subsite::changeSubsite($s2);
+		$this->assertArrayHasKey('ErrorPage', 
+			$page->getCMSFields()->dataFieldByName('ClassName')->getSource()
+		);
+		$this->assertArrayHasKey('SiteTreeSubsitesTest_ClassA', 
+			$page->getCMSFields()->dataFieldByName('ClassName')->getSource()
+		);
+		$this->assertArrayHasKey('SiteTreeSubsitesTest_ClassB', 
+			$page->getCMSFields()->dataFieldByName('ClassName')->getSource()
+		);
+	}
+	
+	function testPageTypesBlacklistInCMSMain() {
+		Session::set("loggedInAs", null);
+		
+		$cmsmain = new CMSMain();
+		
+		$s1 = $this->objFromFixture('Subsite','domaintest1');
+		$s2 = $this->objFromFixture('Subsite','domaintest2');
+		
+		$s1->PageTypeBlacklist = 'SiteTreeSubsitesTest_ClassA,ErrorPage';
+		$s1->write();
+
+		Subsite::changeSubsite($s1);
+		$classes = $cmsmain->PageTypes()->column('ClassName');
+		$this->assertNotContains('ErrorPage', $classes);
+		$this->assertNotContains('SiteTreeSubsitesTest_ClassA', $classes);
+		$this->assertContains('SiteTreeSubsitesTest_ClassB', $classes);
+
+		Subsite::changeSubsite($s2);
+		$classes = $cmsmain->PageTypes()->column("ClassName");
+		$this->assertContains('ErrorPage', $classes);
+		$this->assertContains('SiteTreeSubsitesTest_ClassA', $classes);
+		$this->assertContains('SiteTreeSubsitesTest_ClassB', $classes);
+	}
+	
 }
+
+class SiteTreeSubsitesTest_ClassA extends SiteTree implements TestOnly {}
+
+class SiteTreeSubsitesTest_ClassB extends SiteTree implements TestOnly {}

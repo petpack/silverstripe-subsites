@@ -81,63 +81,10 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 		}
 	}
 	
-	/**
-	 * Call this method before writing; the next write carried out by the system won't
-	 * set the CustomContent value
-	 */
-	function nextWriteDoesntCustomise() {
-		$this->nextWriteDoesntCustomise = true;
-	}
-	
-	protected $nextWriteDoesntCustomise = false;
-	
 	function onBeforeWrite() {
 		if(!$this->owner->ID && !$this->owner->SubsiteID) $this->owner->SubsiteID = Subsite::currentSubsiteID();
-
-		// If the content has been changed, then the page should be marked as 'custom content'
-		if(!$this->nextWriteDoesntCustomise && $this->owner->ID && $this->owner->MasterPageID && !$this->owner->CustomContent) {
-			$changed = $this->owner->getChangedFields();
-
-			foreach(self::$template_fields as $field) {
-				if(isset($changed[$field]) && $changed[$field]) {
-					$this->owner->CustomContent = true;
-					FormResponse::add("if($('Form_EditForm_CustomContent')) $('Form_EditForm_CustomContent').checked = true;");
-					break;
-				}
-			}
-		}
-		
-		$this->nextWriteDoesntCustomise = false;
 		
 		parent::onBeforeWrite();
-	}
-	
-	function onAfterWrite(&$original) {
-		// Update any subsite virtual pages that might need updating
-		$oldState = Subsite::$disable_subsite_filter;
-		Subsite::$disable_subsite_filter = true;
-		
-		$linkedPages = DataObject::get("SubsitesVirtualPage", "\"CopyContentFromID\" = {$this->owner->ID}");
-		if($linkedPages) foreach($linkedPages as $page) {
-			$page->copyFrom($page->CopyContentFrom());
-			$page->write();
-		}
-		
-		Subsite::$disable_subsite_filter = $oldState;
-	}
-	
-	function onAfterPublish(&$original) {
-		// Publish any subsite virtual pages that might need publishing
-		$oldState = Subsite::$disable_subsite_filter;
-		Subsite::$disable_subsite_filter = true;
-		
-		$linkedPages = DataObject::get("SubsitesVirtualPage", "\"CopyContentFromID\" = {$this->owner->ID}");
-		if($linkedPages) foreach($linkedPages as $page) {
-			$page->copyFrom($page->CopyContentFrom());
-			if($page->ExistsOnLive) $page->doPublish();
-		}
-		
-		Subsite::$disable_subsite_filter = $oldState;
 	}
 
 	function updateCMSFields(&$fields) {
@@ -191,40 +138,6 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 			$text .= '</p>';
 			
 			$tab->push(new LiteralField('ReverseRelated', $text));
-		}
-		
-		$virtualPagesTable = new SubsiteAgnosticTableListField(
-			'VirtualPageTracking',
-			'SiteTree',
-			array(
-				'Title' => 'Title',
-				'AbsoluteLink' => 'URL',
-				'Subsite.Title' => 'Subsite'
-			),
-			'"CopyContentFromID" = ' . $this->owner->ID,
-			''
-		);
-		$virtualPagesTable->setFieldFormatting(array(
-			'Title' => '<a href=\"admin/show/$ID\">$Title</a>'
-		));
-		$virtualPagesTable->setPermissions(array(
-			'show',
-			'export'
-		));
-		
-		
-		
-		if ($tab = $fields->fieldByName('Root.VirtualPages')) {
-			$tab->removeByName('VirtualPageTracking');
-			$tab->push($virtualPagesTable);
-		} else {
-			if ($virtualPagesTable->TotalCount()) {
-				$virtualPagesNote = new LiteralField('BackLinksNote', '<p>' . _t('SiteTree.VIRTUALPAGESLINKING', 'The following virtual pages pull from this page:') . '</p>');
-				$fields->fieldByName('Root')->push($tabVirtualPages = new Tab('VirtualPages',
-					$virtualPagesNote,
-					$virtualPagesTable
-				));
-			}
 		}
 	
 	}
@@ -380,10 +293,11 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 					
 					$subsiteID = Subsite::getSubsiteIDForDomain($domain);
 					if($subsiteID == 0) continue; // We have no idea what the domain for the main site is, so cant track links to it
-					
+
+					$origDisableSubsiteFilter = Subsite::$disable_subsite_filter;
 					Subsite::disable_subsite_filter(true);
 					$candidatePage = DataObject::get_one("SiteTree", "\"URLSegment\" = '" . urldecode( $rest). "' AND \"SubsiteID\" = " . $subsiteID, false);
-					Subsite::disable_subsite_filter(false);
+					Subsite::disable_subsite_filter($origDisableSubsiteFilter);
 					
 					if($candidatePage) {
 						$linkedPages[] = $candidatePage->ID;
@@ -403,6 +317,18 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 	function cacheKeyComponent() {
 		return 'subsite-'.Subsite::currentSubsiteID();
 	}
+	
+	/**
+	 * @param Member
+	 * @return boolean|null
+	 */
+	function canCreate($member = null) {
+		// Typically called on a singleton, so we're not using the Subsite() relation
+		$subsite = Subsite::currentSubsite();
+		if($subsite && $subsite->exists() && $subsite->PageTypeBlacklist) {
+			$blacklisted = explode(',', $subsite->PageTypeBlacklist);
+			// All subclasses need to be listed explicitly
+			if(in_array($this->owner->class, $blacklisted)) return false;
+		}
+	}
 }
-
-?>
