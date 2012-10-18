@@ -332,6 +332,9 @@ JS;
 		if(is_object($subsite)) $subsiteID = $subsite->ID;
 		else $subsiteID = $subsite;
 
+		// Only bother flushing caches if we've actually changed
+		if($subsiteID != self::currentSubsiteID()) Permission::flush_permission_cache();
+
 		Session::set('SubsiteID', (int)$subsiteID);
 		// currentSubsiteID() values the $_REQUEST over the session
 		if( isset($_REQUEST['SubsiteID']) ) unset($_REQUEST['SubsiteID']);
@@ -341,9 +344,6 @@ JS;
 				i18n::set_locale(i18n::$likely_subtags[$subsite->Language]);
 			}
 		}
-		
-		// Only bother flushing caches if we've actually changed
-		if($subsiteID != self::currentSubsiteID()) Permission::flush_permission_cache();
 	}
 
 	/**
