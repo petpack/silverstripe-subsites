@@ -93,10 +93,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 		// replace readonly link prefix
 		$subsite = $this->owner->Subsite();
 		if($subsite && $subsite->ID) {
-			$baseUrl = Controller::join_links (
-				'http://' . $subsite->domain() . '/',
-				(SiteTree::nested_urls() && $this->owner->ParentID ? $this->owner->Parent()->RelativeLink(true) : null)
-			);
+			$baseUrl = 'http://' . $subsite->domain() . '/';
 			$fields->removeByName('BaseUrlLabel');
 			$fields->addFieldToTab(
 				'Root.Content.Metadata',
@@ -253,7 +250,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 	 */
 	static function contentcontrollerInit($controller) {
 		// Need to set the SubsiteID to null incase we've been in the CMS
-		Subsite::disable_subsite_selection();
+		Session::set('SubsiteID', null);
 		$subsite = Subsite::currentSubsite();
 		if($subsite && $subsite->Theme) SSViewer::set_theme(Subsite::currentSubsite()->Theme);
 	}
@@ -264,9 +261,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 	static function modelascontrollerInit($controller) {
 		// Need to set the SubsiteID to null incase we've been in the CMS
 		// Prevent this happening from a request to favicon.ico - this prevents /admin/publishall working on a non-default subsite
-		if( $_SERVER['REQUEST_URI'] != '/favicon.ico' ) {
-			Subsite::disable_subsite_selection();
-		}
+		if( $_SERVER['REQUEST_URI'] != '/favicon.ico' ) Session::set('SubsiteID', null);
 	}
 	
 	function alternateAbsoluteLink() {

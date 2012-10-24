@@ -26,7 +26,6 @@ class Subsite extends DataObject implements PermissionProvider {
 	static $force_subsite = null;
 
 	static $write_hostmap = true;
-
 	static $default_sort = "\"Title\" ASC";
 
 	static $db = array(
@@ -303,7 +302,7 @@ JS;
 
 		if($id === NULL) {
 			$id = self::getSubsiteIDForDomain();
-			// Session::set('SubsiteID', $id);
+			Session::set('SubsiteID', $id);
 		}
 
 		return (int)$id;
@@ -336,8 +335,7 @@ JS;
 		if($subsiteID != self::currentSubsiteID()) Permission::flush_permission_cache();
 
 		Session::set('SubsiteID', (int)$subsiteID);
-		// currentSubsiteID() values the $_REQUEST over the session
-		if( isset($_REQUEST['SubsiteID']) ) unset($_REQUEST['SubsiteID']);
+
 		// Set locale
 		if (is_object($subsite) && $subsite->Language != '') {
 			if (isset(i18n::$likely_subtags[$subsite->Language])) {
