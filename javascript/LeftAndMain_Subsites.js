@@ -1,7 +1,7 @@
 Behaviour.register({
 	'#SubsiteActions select' : {
 		onchange: function() {
-			document.location.href = SiteTreeHandlers.controller_url + '?SubsiteID=' + this.value;
+			document.location.href = window.location.pathname + '?SubsiteID=' + this.value;
 		}
 	},
 	
