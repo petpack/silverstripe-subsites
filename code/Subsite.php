@@ -81,6 +81,16 @@ class Subsite extends DataObject implements PermissionProvider {
 	protected static $allowed_themes = array();
 
 	/**
+	 * Signifies if sub-site filtering has been disabled temporarily using self::temporarily_disable_subsite_filter()
+	 *
+	 * @var array(bool)
+	 * @see self::temporarily_disable_subsite_filter()
+	 * @see self::restore_disable_subsite_filter()
+	 * @author Adam Rice <development@hashnotadam.com>
+	 */
+	static $previous_disable_subsite_filter = array();
+
+	/**
 	 * Signifies if subsites has been disabled temporarily using self::temporarily_set_subsite()
 	 * 
 	 * @var array(int)
@@ -589,7 +599,31 @@ JS;
 	static function disable_subsite_filter($disabled = true) {
 		self::$disable_subsite_filter = $disabled;
 	}
-	
+
+	/**
+	 * Disable sub-site filtering but store the current filtering state for restoration
+	 *
+	 * @see self::restore_disable_subsite_filter()
+	 * @author Adam Rice <development@hashnotadam.com>
+	 */
+	static function temporarily_disable_subsite_filter() {
+		self::$previous_disable_subsite_filter[] = self::$disable_subsite_filter;
+		self::disable_subsite_filter();
+	}
+
+	/**
+	 * Restores the sub-site filtering state in use before temporarily_disable_subsite_filter was called
+	 *
+	 * @see self::temporarily_disable_subsite_filter()
+	 * @author Adam Rice <development@hashnotadam.com>
+	 */
+	static function restore_disable_subsite_filter() {
+		if( self::$previous_disable_subsite_filter ) {
+			$state = array_pop(self::$previous_disable_subsite_filter);
+			self::disable_subsite_filter($state);
+		}
+	}
+
 	/**
 	 * Disables the selection of the current Subsite based on the SubsiteID in the Session.
 	 * @param boolean $disabled
