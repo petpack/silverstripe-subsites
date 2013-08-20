@@ -39,7 +39,7 @@ class CommentAdminSubsites extends Extension {
 		
 		//non-admin users see comments filtered by subsite:
 		if (!Permission::check("ADMIN"))
-			$filter .= ' AND SubsiteID = ' . Subsite::currentSubsiteID();
+			$filter .= ' AND ' . self::SubsiteWhere(false);
 		
 		$tableFields = array(
 			"Name" => _t('CommentAdmin.AUTHOR', 'Author'),
@@ -49,8 +49,9 @@ class CommentAdminSubsites extends Extension {
 			"Created" => _t('CommentAdmin.DATEPOSTED', 'Date Posted')
 		);
 		
+		//this should probably be a pet-pack-specific extension:
 		if (Permission::check("ADMIN"))
-			$tableFields["Parent.Subsite.Client.Title"] = 'Client';
+			$tableFields["Parent.Subsite.Title"] = 'Subsite';
 
 		$popupFields = new FieldSet(
 			new TextField('Name', _t('CommentAdmin.NAME', 'Name')),
@@ -113,7 +114,7 @@ class CommentAdminSubsites extends Extension {
 	 * Return SQL JOIN clause to augment the ExtendedNum<x> Queries
 	 * @return string
 	 */
-	function SubsiteJoin() {
+	static function SubsiteJoin() {
 		if (Permission::check("ADMIN")) return "";
 		return 'LEFT JOIN 
 					"SiteTree" 
@@ -123,16 +124,24 @@ class CommentAdminSubsites extends Extension {
 	
 	/**
 	 * Return an SQL WHERE clause (with a trailing AND) to augment the 
-	 * 	ExtendedNum<x> Queries
+	 * 	ExtendedNum<x> Queries and EditForm
 	 * @return string
 	 */
-	function SubsiteWhere($include_and = True) {
+	static function SubsiteWhere($include_and = True) {
 		if (Permission::check("ADMIN")) return "";
-		//TODO: if Subsite::ClientSubsiteIDs() is a method, use that, 
-		//	otherwise currentSubsiteID
-		return '"SiteTree"."SubsiteID" IN (' . 
-			convert::raw2sql(Subsite::currentSubsiteID()) . 
-			") " . ($include_and ? " AND " : "");
+		
+		//	Pet-pack needs to be able to filter by all subsites owned by 
+		//		the current client, not just the current subsite. 
+		//this is perhaps not very silverstripey. But There's no static 
+		//	extend() and no hasMethod on Extension classes. yay.
+		if (class_exists("SubsiteDecorator") && 
+				method_exists("SubsiteDecorator",'clientSubsiteIDs')) 
+			$ids = SubsiteDecorator::clientSubsiteIDs();
+		else
+			$ids = Subsite::currentSubsiteID();
+		
+		return '"SiteTree"."SubsiteID" IN (' . $ids .') '.
+			($include_and ? "AND " : "");
 	}
 	
 	/**
@@ -140,7 +149,7 @@ class CommentAdminSubsites extends Extension {
 	 */
 	function ExtendedNumModerated() {
 		return DB::query("SELECT COUNT(*) FROM \"PageComment\" " . 
-				$this->SubsiteJoin() . " WHERE " . $this->SubsiteWhere() . 
+				self::SubsiteJoin() . " WHERE " . self::SubsiteWhere() . 
 				"\"IsSpam\"=0 AND \"NeedsModeration\"=0")->value();
 	}
 
@@ -149,7 +158,7 @@ class CommentAdminSubsites extends Extension {
 	 */
 	function ExtendedNumUnmoderated() {
 		return DB::query("SELECT COUNT(*) FROM \"PageComment\"  " . 
-				$this->SubsiteJoin() . " WHERE " . $this->SubsiteWhere() . 
+				self::SubsiteJoin() . " WHERE " . self::SubsiteWhere() . 
 				"\"IsSpam\"=0 AND \"NeedsModeration\"=1")->value();
 	}
 
@@ -158,7 +167,7 @@ class CommentAdminSubsites extends Extension {
 	 */
 	function ExtendedNumSpam() {
 		return DB::query("SELECT COUNT(*) FROM \"PageComment\"  " . 
-			$this->SubsiteJoin() . " WHERE " . $this->SubsiteWhere() . 
+			self::SubsiteJoin() . " WHERE " . self::SubsiteWhere() . 
 			"\"IsSpam\"=1")->value();
 	}
 	
