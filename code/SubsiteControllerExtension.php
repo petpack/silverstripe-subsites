@@ -13,8 +13,13 @@ class SubsiteController extends Extension {
 		if( Director::isLive() && !Director::is_cli() ) {
 			$subsite = Subsite::currentSubsite();
 			$primary = $subsite->getPrimaryDomain();
-			if( $_SERVER['HTTP_HOST'] != $primary ) {
-				Director::redirect(Director::protocol() . "{$primary}{$_SERVER['REQUEST_URI']}");
+			if($primary && $_SERVER['HTTP_HOST'] != $primary ) {
+				$path = $_SERVER['REQUEST_URI'];
+				//ensure slash between domain and URI, but only when there's a URI:
+				if ($path && substr($primary,-1) != '/' && substr($path,0,1) != '/')
+					$path = "/$path"; 
+				$url = Director::protocol() . "{$primary}{$path}";
+				Director::redirect($url);
 			}
 		}
 	}
