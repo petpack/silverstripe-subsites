@@ -10,7 +10,7 @@ class SubsiteController extends Extension {
 	 * @see Controller::handleRequest()
 	 */
 	public function onBeforeInit() {
-		if( Director::isLive() ) {
+		if( Director::isLive() && !Director::is_cli() ) {
 			$subsite = Subsite::currentSubsite();
 			$primary = $subsite->getPrimaryDomain();
 			if( $_SERVER['HTTP_HOST'] != $primary ) {
