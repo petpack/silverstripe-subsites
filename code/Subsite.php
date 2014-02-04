@@ -341,12 +341,24 @@ JS;
 		if($host == null) $host = $_SERVER['HTTP_HOST'];
 		if(isset($subsiteForDomain[$host])) return $subsiteForDomain[$host];
 		
-		$host = str_replace('www.','',$host);
+		//treat 'www.domain' the same as 'domain':
+		//DM: only replace www. at start of string: www.domain.www.somedomain.com 
+		//	is perfectly valid
+		$host = preg_replace("/^www\./", '', $host);
+		
+		//Treat 'staging.domain' (and, by extension, 'www.staging.domain') the 
+		//	same as 'domain':
+		$host = preg_replace('/^staging\./','',$host);
+		
+		//remove port numbers from host name:
+		$host = preg_replace('/:\d+$/','',$host);
+		
 		$SQL_host = Convert::raw2sql($host);
-
+		
 		$matchingDomains = DataObject::get("SubsiteDomain", "'$SQL_host' LIKE replace(\"SubsiteDomain\".\"Domain\",'*','%')",
 			"\"IsPrimary\" DESC", "INNER JOIN \"Subsite\" ON \"Subsite\".\"ID\" = \"SubsiteDomain\".\"SubsiteID\" AND
 			\"Subsite\".\"IsPublic\"=1");
+		
 		
 		if($matchingDomains) {
 			$subsiteIDs = array_unique($matchingDomains->column('SubsiteID'));
