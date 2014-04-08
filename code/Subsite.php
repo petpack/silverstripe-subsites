@@ -332,10 +332,12 @@ JS;
 	 * 
 	 * @param $host The host to find the subsite for.  If not specified, $_SERVER['HTTP_HOST']
 	 * is used.
+	 * @param $returnMainIfNotFound 	return the main site if not found
+	 * @param $allow_disabled	bool	are disabled sites allowed? default false
 	 *
 	 * @return int Subsite ID
 	 */
-	static function getSubsiteIDForDomain($host = null, $returnMainIfNotFound = true) {
+	static function getSubsiteIDForDomain($host = null, $returnMainIfNotFound = true,$allow_disabled = false) {
 		static $subsiteForDomain = array();
 		
 		if($host == null) $host = $_SERVER['HTTP_HOST'];
@@ -355,9 +357,13 @@ JS;
 		
 		$SQL_host = Convert::raw2sql($host);
 		
+		if ($allow_disabled)
+			$public_filter = "";
+		else
+			$public_filter = "AND \"Subsite\".\"IsPublic\"=1"; 
+		
 		$matchingDomains = DataObject::get("SubsiteDomain", "'$SQL_host' LIKE replace(\"SubsiteDomain\".\"Domain\",'*','%')",
-			"\"IsPrimary\" DESC", "INNER JOIN \"Subsite\" ON \"Subsite\".\"ID\" = \"SubsiteDomain\".\"SubsiteID\" AND
-			\"Subsite\".\"IsPublic\"=1");
+			"\"IsPrimary\" DESC", "INNER JOIN \"Subsite\" ON \"Subsite\".\"ID\" = \"SubsiteDomain\".\"SubsiteID\" $public_filter");
 		
 		
 		if($matchingDomains) {
