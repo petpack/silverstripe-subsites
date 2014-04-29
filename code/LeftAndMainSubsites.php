@@ -138,6 +138,8 @@ class LeftAndMainSubsites extends Extension {
 			return true;
 		}
 		
+		/*
+		 * DM: horribly inefficient, not really what we want:
 		// Switch to a different top-level menu item
 		$menu = CMSMenu::get_menu_items();
 		foreach($menu as $candidate) {
@@ -153,7 +155,7 @@ class LeftAndMainSubsites extends Extension {
 				}
 			}
 		}
-		
+		*/
 		// If all of those fail, you really don't have access to the CMS		
 		return null;
 	}
