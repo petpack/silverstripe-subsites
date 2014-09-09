@@ -108,6 +108,12 @@ class Subsite extends DataObject implements PermissionProvider {
 	static function set_allowed_themes($themes) {
 		self::$allowed_themes = $themes;
 	}
+	
+	/**
+	 * Cached array of subsite objects, indexed by hostname
+	 * @var Array(hostname => subsite)
+	 */
+	public static $subsiteForDomainCache = array();
 
 	/**
 	 * Return the themes that can be used with this subsite, as an array of themecode => description
@@ -326,7 +332,7 @@ JS;
 	function canEdit() {
 		return true;
 	}
-
+	
 	/**
 	 * Get a matching subsite for the given host, or for the current HTTP_HOST.
 	 * 
@@ -338,10 +344,10 @@ JS;
 	 * @return int Subsite ID
 	 */
 	static function getSubsiteIDForDomain($host = null, $returnMainIfNotFound = true,$allow_disabled = false) {
-		static $subsiteForDomain = array();
 		
 		if($host == null) $host = $_SERVER['HTTP_HOST'];
-		if(isset($subsiteForDomain[$host])) return $subsiteForDomain[$host];
+		
+		//sanitise hostname BEFORE doing caching to prevent repeated DB calls
 		
 		//treat 'www.domain' the same as 'domain':
 		//DM: only replace www. at start of string: www.domain.www.somedomain.com 
@@ -354,6 +360,9 @@ JS;
 		
 		//remove port numbers from host name:
 		$host = preg_replace('/:\d+$/','',$host);
+		
+		if(isset(self::$subsiteForDomainCache[$host]))
+			return self::$subsiteForDomainCache[$host];
 		
 		$SQL_host = Convert::raw2sql($host);
 		
@@ -369,13 +378,13 @@ JS;
 		if($matchingDomains) {
 			$subsiteIDs = array_unique($matchingDomains->column('SubsiteID'));
 			if(sizeof($subsiteIDs) > 1) user_error("Multiple subsites match '$host'", E_USER_WARNING);
-			$subsiteForDomain[$host] = $subsiteIDs[0];
+			self::$subsiteForDomainCache[$host] = $subsiteIDs[0];
 			return $subsiteIDs[0];
 		}
 		
 		// Check for a 'default' subsite
 		if ($returnMainIfNotFound && ($default = DataObject::get_one('Subsite', "\"DefaultSite\" = 1"))) {
-			$subsiteForDomain[$host] = $default->ID;
+			self::$subsiteForDomainCache[$host] = $default->ID;
 			return $default->ID;
 		}
 		
