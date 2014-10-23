@@ -22,6 +22,10 @@ class SubsiteDomain extends DataObject {
 		'.org',
 	);
 	
+	function TitleField() {
+		return 'Domain';
+	}
+	
 	/**
 	 * Return the TLD for a given domain (or subdomain)
 	 * @param string $domain
