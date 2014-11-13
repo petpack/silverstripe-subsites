@@ -88,7 +88,7 @@ class SubsiteDomain extends DataObject {
 	
 	public function DNSCheck() {
 		Requirements::css('pet-pack/css/admin.css');
-		$color=""; //red, green, orange. 
+		$color=""; //red, green, orange. anything else is black.
 		if (
 			(strpos(strtolower($this->Domain),"petpack") !== false) ||
 			(strpos(strtolower($this->Domain),"localhost") !== false) ||
@@ -100,28 +100,28 @@ class SubsiteDomain extends DataObject {
 		} else {
 			$color = "green";
 			
-			require_once('../../webapi.php');
+			require_once('../lib/webapi.php');
 			$i = new DomainInfo($this->Domain);
 			$msg = $i->check_website();
-			if (strpos($msg,"All OK")!== false)
+			if (strpos($msg,"perfect")!== false)
 				$color = 'green';
 			else $color = "orange";
-			$msg = str_replace("\n", "<br />",$msg);
+			//$msg = str_replace("\n", "<br />",$msg);
 			//$msg = "<span style='font-size:0.7em'>$msg</span>";
 		}
-			
-		return "<div class='trafficlight $color'></div><span style='font-size:0.7em;'>$msg</span>";
+		
+		return "<div class='trafficlight $color'></div>$msg";
 	}
 	
 	public function getCMSFields($params = null) {
 		$fields = parent::getCMSFields($params);
 		
-		require_once('../../webapi.php');
+		require_once('../lib/webapi.php');
 		
 		$i = new DomainInfo($this->Domain);
 		
 		$fields->addFieldToTab("Root.Main", new LiteralField('whois', 
-			"<pre>" . $i->check_website() . "</pre>"
+			$i->report()
 		));
 		
 		return $fields;
