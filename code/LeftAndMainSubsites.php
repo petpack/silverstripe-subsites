@@ -61,12 +61,22 @@ class LeftAndMainSubsites extends Extension {
 					$subsites->push(new ArrayData(array('Title' => 'All groups', 'ID' => -1)));
 				}
 				break;
-				
+			
 			case "CMSMain":
+				
 				// If there's a default site then main site has no meaning
 				$showMainSite = !DataObject::get_one('Subsite',"\"DefaultSite\"=1 AND \"IsPublic\"=1");
+				
 				$subsites = Subsite::accessible_sites($accessPerm, $showMainSite);
 				break;
+				
+			case "AdminHome":
+				//DM: AdminHome shows subsites for all pages
+				$accessPerm = Array(
+					"CMS_ACCESS_CMSMain",
+					"CMS_ACCESS_AccountAdmin",
+					"CMS_ACCESS_ReportAdmin"
+				);
 				
 			default: 
 				$subsites = Subsite::accessible_sites($accessPerm);
