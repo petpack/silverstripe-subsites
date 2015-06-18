@@ -380,6 +380,13 @@ JS;
 			if(sizeof($subsiteIDs) > 1) user_error("Multiple subsites match '$host'", E_USER_WARNING);
 			self::$subsiteForDomainCache[$host] = $subsiteIDs[0];
 			return $subsiteIDs[0];
+		} else {
+			//no match, see if we're on "$somedomain.localhost" 
+			//	and treat it as if it was just "$somedomain":
+			if (preg_match('/\.localhost$/', $host)) {
+				$host = preg_replace('/\.localhost$/', '', $host);
+				return self::getSubsiteIDForDomain($host,$returnMainIfNotFound,$allow_disabled);
+			}
 		}
 		
 		// Check for a 'default' subsite
