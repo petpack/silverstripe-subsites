@@ -273,11 +273,18 @@ JS;
 			return self::getSubsiteIDForDomain();
 		}
 		
-		if(isset($_REQUEST['SubsiteID']) && is_int($_REQUEST['SubsiteID']) ) $id = $_REQUEST['SubsiteID'];
-		else $id = Session::get('SubsiteID');
+		if(isset($_REQUEST['SubsiteID']) && is_int($_REQUEST['SubsiteID']) ) {
+			$id = $_REQUEST['SubsiteID'];
+			//error_log("Got subsite (" . $id . ") from Request.");
+		}
+		else {
+			$id = Session::get('SubsiteID');
+			//error_log("Got subsite (" . $id . ") from Session.");
+		}
 
 		if($id === NULL) {
 			$id = self::getSubsiteIDForDomain();
+			//error_log("Got subsite (" . $id . ") from Domain.");
 			// Session::set('SubsiteID', $id);
 		}
 
@@ -306,7 +313,7 @@ JS;
 	static function changeSubsite($subsite) {
 		if( is_object($subsite) ) $subsiteID = $subsite->ID;
 		else $subsiteID = $subsite;
-
+		
 		//* debug */ Debug::message('changeSubsite: ' . $subsiteID . " Trace: \n" . SS_Backtrace::get_rendered_backtrace(debug_backtrace(), true));
 		Session::set('SubsiteID', (int)$subsiteID);
 		// currentSubsiteID() values the $_REQUEST over the session
