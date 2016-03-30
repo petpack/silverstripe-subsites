@@ -132,8 +132,37 @@ class LeftAndMainSubsites extends Extension {
 		// Switch to the subsite of the current page
 		// but only if this is a request for CMSMain (we're not just generating the menu)
 		if ($this->owner->class == 'CMSMain' && ($currentPage = $this->owner->currentPage()) && $this->owner->request ) {
-			if( $subsiteID != $currentPage->SubsiteID ) {
-				Subsite::changeSubsite($currentPage->SubsiteID);
+			
+			//check that the member actually has access to the subsite before trying to switch to it:
+			$member = Member::currentUser();
+			$sites = Array();
+			
+			$s = $member->accessible_subsites();
+			if ($s && $s->exists()) {
+				foreach ($s as $si) {	//dataobjectset into array:
+					$sites[$si->ID] = $si;
+				}
+			}
+			
+			if (in_array($currentPage->SubsiteID, array_keys($sites))) {	//only change subsite if the member can access it, duh.
+				if( $subsiteID != $currentPage->SubsiteID ) {
+					Subsite::changeSubsite($currentPage->SubsiteID);
+				}
+			} else {
+				
+				//find a new page and use that instead.
+				//first, try for a homepage:
+				$page = DataObject::get("HomePage","SubsiteID = " . $subsiteID);
+				
+				//if that didn't work, settle for any page:
+				if (!$page || !$page->exists())
+					$page = DataObject::get("HomePage","SubsiteID = " . $subsiteID);
+				
+				if ($page && $page->exists()) { 
+					$id = $page->First()->ID;
+					$this->owner->setCurrentPageID($id); 
+				}
+				
 			}
 		}
 		
