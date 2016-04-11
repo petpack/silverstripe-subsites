@@ -352,7 +352,8 @@ JS;
 	 */
 	static function getSubsiteIDForDomain($host = null, $returnMainIfNotFound = true,$allow_disabled = false) {
 		
-		if($host == null) $host = $_SERVER['HTTP_HOST'];
+		if(($host == null) && isset($_SERVER['HTTP_HOST']))
+			$host = $_SERVER['HTTP_HOST'];
 		
 		//sanitise hostname BEFORE doing caching to prevent repeated DB calls
 		
