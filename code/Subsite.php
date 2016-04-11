@@ -167,7 +167,7 @@ class Subsite extends DataObject implements PermissionProvider {
 				// If there are wildcards in the primary domain (not recommended), make some
 				// educated guesses about what to replace them with
 				if (isset($_SERVER['HTTP_HOST'])) {
-					$domain = preg_replace("/\\.\\*\$/",".$_SERVER['HTTP_HOST']", $domain);
+					$domain = preg_replace("/\\.\\*\$/",".$_SERVER[HTTP_HOST]", $domain);
 				}
 				$domain = preg_replace("/^\\*\\./","subsite.", $domain);
 				$domain = str_replace('.www.','.', $domain);
