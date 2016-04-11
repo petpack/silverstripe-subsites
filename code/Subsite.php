@@ -166,8 +166,8 @@ class Subsite extends DataObject implements PermissionProvider {
 				$domain = $domains->First()->Domain;
 				// If there are wildcards in the primary domain (not recommended), make some
 				// educated guesses about what to replace them with
-				if (isset($_SERVER[HTTP_HOST])) {
-					$domain = preg_replace("/\\.\\*\$/",".$_SERVER[HTTP_HOST]", $domain);
+				if (isset($_SERVER['HTTP_HOST'])) {
+					$domain = preg_replace("/\\.\\*\$/",".$_SERVER['HTTP_HOST']", $domain);
 				}
 				$domain = preg_replace("/^\\*\\./","subsite.", $domain);
 				$domain = str_replace('.www.','.', $domain);
@@ -176,7 +176,7 @@ class Subsite extends DataObject implements PermissionProvider {
 			
 		// SubsiteID = 0 is often used to refer to the main site, just return $_SERVER['HTTP_HOST']
 		} else {
-			return isset($_SERVER[HTTP_HOST]) ? $_SERVER['HTTP_HOST'] : null;
+			return isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null;
 		}
 	}
 	
