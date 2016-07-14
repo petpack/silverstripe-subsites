@@ -54,7 +54,7 @@ class GroupSubsites extends DataObjectDecorator implements PermissionProvider {
 		}
 	}
 	
-	function updateCMSFields(&$fields) {
+	function updateCMSFields(FieldSet &$fields) {
 		if($this->owner->canEdit() ){
 			// i18n tab
 			$fields->findOrMakeTab('Root.Subsites',_t('GroupSubsites.SECURITYTABTITLE','Subsites'));

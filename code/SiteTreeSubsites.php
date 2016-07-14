@@ -112,7 +112,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 		parent::onBeforeWrite();
 	}
 	
-	function onAfterWrite(&$original) {
+	function onAfterWrite() {
 		// Update any subsite virtual pages that might need updating
 		$oldState = Subsite::$disable_subsite_filter;
 		Subsite::$disable_subsite_filter = true;
@@ -140,7 +140,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 		Subsite::$disable_subsite_filter = $oldState;
 	}
 
-	function updateCMSFields(&$fields) {
+	function updateCMSFields(FieldSet &$fields) {
 		if($this->owner->MasterPageID) $fields->insertFirst(new HeaderField('This page\'s content is copied from a master page: ' . $this->owner->MasterPage()->Title, 2));
 		
 		// replace readonly link prefix
@@ -272,7 +272,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 	 * - Is in a group which has access to the subsite this page belongs to
 	 * - Is in a group with edit permissions on the "main site"
 	 * 
-	 * @return boolean
+	 * @return SS_Boolean
 	 */
 	function canEdit($member = null) {
 		if(!$member) $member = Member::currentUser();
@@ -285,7 +285,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 	}
 	
 	/**
-	 * @return boolean
+	 * @return SS_Boolean
 	 */
 	function canDelete($member = null) {
 		if(!$member && $member !== FALSE) $member = Member::currentUser();
@@ -294,7 +294,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 	}
 	
 	/**
-	 * @return boolean
+	 * @return SS_Boolean
 	 */
 	function canAddChildren($member = null) {
 		if(!$member && $member !== FALSE) $member = Member::currentUser();
@@ -303,7 +303,7 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 	}
 	
 	/**
-	 * @return boolean
+	 * @return SS_Boolean
 	 */
 	function canPublish($member = null) {
 		if(!$member && $member !== FALSE) $member = Member::currentUser();
@@ -313,8 +313,8 @@ class SiteTreeSubsites extends SiteTreeDecorator {
 
 	/**
 	 * Create a duplicate of this page and save it to another subsite
-	 * @param $subsiteID int|Subsite The Subsite to copy to, or its ID
-	 * @param $isTemplate boolean If this is true, then the current page will be treated as the template, and MasterPageID will be set
+	 * @param $subsiteID SS_Int|Subsite The Subsite to copy to, or its ID
+	 * @param $isTemplate SS_Boolean If this is true, then the current page will be treated as the template, and MasterPageID will be set
 	 */
 	public function duplicateToSubsite($subsiteID = null, $isTemplate = true) {
 		if(is_object($subsiteID)) {

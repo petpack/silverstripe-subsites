@@ -17,7 +17,7 @@ class RelatedPageLink extends DataObject {
 		'MasterPage' => 'SiteTree',
 	);
 	
-	function getCMSFields() {
+	function getCMSFields($params = null) {
 		$subsites = Subsite::accessible_sites("CMS_ACCESS_CMSMain");
 		if(!$subsites) $subsites = new DataObjectSet();
 

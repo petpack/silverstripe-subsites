@@ -7,8 +7,8 @@ class SubsitesVirtualPage extends VirtualPage {
 		'CustomExtraMeta' => 'HTMLText'
 	);
 	
-	function getCMSFields() {
-		$fields = parent::getCMSFields();
+	function getCMSFields($cms = NULL) {
+		$fields = parent::getCMSFields($cms);
 		
 		$subsites = DataObject::get('Subsite');
 		if(!$subsites) $subsites = new DataObjectSet();

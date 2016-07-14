@@ -8,13 +8,13 @@
 class Subsite extends DataObject implements PermissionProvider {
 
 	/**
-	 * @var boolean $disable_subsite_filter If enabled, bypasses the query decoration
+	 * @var SS_Boolean $disable_subsite_filter If enabled, bypasses the query decoration
 	 * to limit DataObject::get*() calls to a specific subsite. Useful for debugging.
 	 */
 	static $disable_subsite_filter = false;
 
 	/**
-	 * @var boolean $disable_subsite_selection If enabled, disables the selection of the 
+	 * @var SS_Boolean $disable_subsite_selection If enabled, disables the selection of the 
 	 * current Subsite based on the SubsiteID in the Session.
 	 */
 	static $disable_subsite_selection = false;
@@ -191,7 +191,7 @@ class Subsite extends DataObject implements PermissionProvider {
 	/**
 	 * Show the configuration fields for each subsite
 	 */
-	function getCMSFields() {
+	function getCMSFields($params = null) {
 		$domainTable = new TableField("Domains", "SubsiteDomain", 
 			array("Domain" => "Domain (use * as a wildcard)", "IsPrimary" => "Primary domain?"), 
 			array("Domain" => "TextField", "IsPrimary" => "CheckboxField"), 
@@ -267,8 +267,8 @@ JS;
 	 *
 	 * @todo Pass $request object from controller so we don't have to rely on $_REQUEST
 	 *
-	 * @param boolean $cache
-	 * @return int ID of the current subsite instance
+	 * @param SS_Boolean $cache
+	 * @return SS_Int ID of the current subsite instance
 	 */
 	static function currentSubsiteID() {
 		if( self::$disable_subsite_selection ) {
@@ -310,7 +310,7 @@ JS;
 	/**
 	 * Switch to another subsite.
 	 *
-	 * @param int|Subsite $subsite Either the ID of the subsite, or the subsite object itself
+	 * @param SS_Int|Subsite $subsite Either the ID of the subsite, or the subsite object itself
 	 */
 	static function changeSubsite($subsite) {
 		if( is_object($subsite) ) $subsiteID = $subsite->ID;
@@ -338,7 +338,7 @@ JS;
 	/**
 	 * @todo Possible security issue, don't grant edit permissions to everybody.
 	 */
-	function canEdit() {
+	function canEdit($member = null) {
 		return true;
 	}
 	
@@ -350,7 +350,7 @@ JS;
 	 * @param $returnMainIfNotFound 	return the main site if not found
 	 * @param $allow_disabled	bool	are disabled sites allowed? default false
 	 *
-	 * @return int Subsite ID
+	 * @return SS_Int Subsite ID
 	 */
 	static function getSubsiteIDForDomain($host = null, $returnMainIfNotFound = true,$allow_disabled = false) {
 		
@@ -457,7 +457,7 @@ JS;
 	/**
 	 * Duplicate this subsite
 	 */
-	function duplicate() {
+	function duplicate($doWrite = true) {
 		$newTemplate = parent::duplicate();
 
 		$oldSubsiteID = Session::get('SubsiteID');
@@ -670,7 +670,7 @@ JS;
 
 	/**
 	 * Disables the selection of the current Subsite based on the SubsiteID in the Session.
-	 * @param boolean $disabled
+	 * @param SS_Boolean $disabled
 	 */
 	static function disable_subsite_selection($disabled = true) {
 		self::$disable_subsite_selection = $disabled;
@@ -693,7 +693,7 @@ JS;
 	 * $subsite->restore_previous_subsite();
 	 * </code>
 	 * 
-	 * @param null|int|Subsite $subsite     Temporarily set the subsite, the following outlines the behaviour of this
+	 * @param null|SS_Int|Subsite $subsite     Temporarily set the subsite, the following outlines the behaviour of this
 	 *                                      method:
 	 *                                      - null: if called from an instance then the subsite is assumed 
 	 *                                              to the instance, however if called statically called then

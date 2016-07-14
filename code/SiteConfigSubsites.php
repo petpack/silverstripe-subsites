@@ -22,8 +22,9 @@ class SiteConfigSubsites extends DataObjectDecorator {
 		if (!$query->where || (!preg_match('/\.(\'|"|`|)ID(\'|"|`|)( ?)=/', $query->where[0]) && !preg_match('/\.?(\'|"|`|)SubsiteID(\'|"|`|)( ?)=/', $query->where[0]))) {
 			if($context = DataObject::context_obj()) $subsiteID = (int)$context->SubsiteID;
 			else $subsiteID = (int)Subsite::currentSubsiteID();
-			
-			$tableName = array_shift(array_keys($query->from));
+
+			$tmpArray = array_keys($query->from);
+			$tableName = array_shift($tmpArray);
 			if($tableName != 'SiteConfig') return;
 			$query->where[] = "\"$tableName\".\"SubsiteID\" IN ($subsiteID)";
 		}

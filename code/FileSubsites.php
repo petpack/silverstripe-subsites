@@ -87,7 +87,7 @@ class FileSubsites extends DataObjectDecorator {
 		$this->owner->write();
 	}
 
-	function canEdit() {
+	function canEdit($member) {
 		// Check the CMS_ACCESS_SecurityAdmin privileges on the subsite that owns this group
 		$subsiteID = Session::get('SubsiteID');
 		if($subsiteID&&$subsiteID == $this->owner->SubsiteID) {
