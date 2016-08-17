@@ -144,7 +144,7 @@ class LeftAndMainSubsites extends Extension {
 				}
 			}
 			
-			if (in_array($currentPage->SubsiteID, array_keys($sites))) {	//only change subsite if the member can access it, duh.
+			if (Permission::check("ADMIN") || in_array($currentPage->SubsiteID, array_keys($sites))) {	//only change subsite if the member can access it, duh.
 				if( $subsiteID != $currentPage->SubsiteID ) {
 					Subsite::changeSubsite($currentPage->SubsiteID);
 				}
