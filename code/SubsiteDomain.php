@@ -4,6 +4,7 @@ class SubsiteDomain extends DataObject {
 	static $db = array(
 		"Domain" => "Varchar(255)",
 		"IsPrimary" => "Boolean",
+		"SelfManaged" => "Boolean",
 	);
 	static $has_one = array(
  		"Subsite" => "Subsite",
@@ -64,6 +65,22 @@ class SubsiteDomain extends DataObject {
 		Subsite::writeHostMap();
 	}
 	
+	public function validate() {
+		$ret = new ValidationResult(True);
+		
+		$sql = "Select * from SubsiteDomain where Domain = '" . $this->Domain . "'";
+		if ($this->ID)
+			$sql .= " and ID != " . $this->ID;
+		$res = DB::query($sql);
+		foreach ($res as $row) {
+			$subsite = DataObject::get_by_id("Subsite", $row['SubsiteID']);
+			$ret->error("The domain '" . $this->Domain . "' is already in the system (Subsite: " . $subsite->title . ")");
+			break;
+		}
+		
+		return $ret;
+	}
+	
 	/**
 	 * Do a whois on the domain
 	 * @return string
@@ -113,9 +130,17 @@ class SubsiteDomain extends DataObject {
 		return "<div class='trafficlight $color'></div>$msg";
 	}
 	
+	function DNSCheck_brief() {
+		$ret = $this->DNSCheck();
+		if (strlen($ret) > 60)
+			$ret = substr($ret,0,60) . "...";
+		return $ret;
+	}
+	
 	public function getCMSFields($params = null) {
 		$fields = parent::getCMSFields($params);
 		
+		/*
 		require_once('../lib/webapi.php');
 		
 		$i = new DomainInfo($this->Domain);
@@ -123,6 +148,7 @@ class SubsiteDomain extends DataObject {
 		$fields->addFieldToTab("Root.Main", new LiteralField('whois', 
 			$i->report()
 		));
+		*/
 		
 		return $fields;
 	}
