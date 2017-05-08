@@ -68,6 +68,9 @@ class SubsiteDomain extends DataObject {
 	public function validate() {
 		$ret = new ValidationResult(True);
 		
+		if (strtolower(substr(trim($this->Domain),0,4)) == "www.")
+			$ret->error("You cannot add a www. subdomain, www is handled automatically.<br />Add the root domain (" . substr($this->Domain,4) . ") instead.");
+		
 		$sql = "Select * from SubsiteDomain where Domain = '" . $this->Domain . "'";
 		if ($this->ID)
 			$sql .= " and ID != " . $this->ID;
