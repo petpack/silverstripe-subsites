@@ -368,6 +368,9 @@ JS;
 		//	same as 'domain':
 		$host = preg_replace('/^staging\./','',$host);
 		
+		//treat 'direct.domain' the same as 'domain' (cloudflare CDN)
+		$host = preg_replace('/^direct\./', '', $host);
+		
 		//remove port numbers from host name:
 		$host = preg_replace('/:\d+$/','',$host);
 		
