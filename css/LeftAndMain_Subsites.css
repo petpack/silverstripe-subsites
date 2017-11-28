@@ -8,10 +8,13 @@
 	right: 0;
 	top: 0;
 	text-align: right;
-	margin-right: 130px;
-	height: 51px;
+	margin-right: 140px;
+	/* height: 51px; 
 	border-bottom: 3px solid #d4d0c8;
-	color: #fff;
+	*/
+	color: #333;
+	margin-top: 3px;
+	width: 200px;
 }
 
 #SubsiteActions fieldset {
@@ -29,14 +32,16 @@
 #SubsitesSelect option {
 	font-size: 12px;
 }
-	#SubsitesSelect {
-		width: 200px;
-		padding: 3px;
-	}
+
+#SubsitesSelect {
+	width: 100%;
+	padding: 3px;
+}
 
 #top #MainMenu #Menu-help {
 	margin-right: 260px;
-}
+} 
+
 
 #AddSubsiteLink {
 	display: block;
@@ -56,4 +61,64 @@
 
 body.SubsiteAdmin .right form #URL .fieldgroup * {
 	font-size: 11px;
+}
+
+ul#SubsitesSelect {
+	max-height: 500px;
+	overflow-y: auto;
+	padding: 0px 5px;
+	box-sizing: border-box;
+	background: #fff;
+	border: 1px solid #333;
+	border-top: none;
+}
+
+ul#SubsitesSelect li {
+	margin-top: 2px;
+	font-size: 12px;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+/*
+ul#SubsitesSelect li:hover {
+	background: #dadada;
+}
+*/
+
+ul#SubsitesSelect li a {
+	text-decoration: none;
+	color: #333;
+}
+
+ul#SubsitesSelect li:hover a {
+	color: #33f;	
+}
+
+input#SubsiteSearch {
+	width: 100%;
+	border: 1px solid #333;
+	box-sizing: border-box;
+}
+
+#SubsiteActions div.filters {
+	background: #fff;
+	padding: 3px;
+	border-left: 1px solid #333;
+	border-right: 1px solid #333;
+	border-bottom: 1px solid #dadada;
+	text-align: left;
+}
+
+#SubsiteActions div.filters input {
+	vertical-align: middle;
+	margin-right: 3px;
+	height:14px;
+}
+
+#SubsiteActions div.filters label {
+	height:14px;
+	font-size: 12px;
+	line-height: 14px;
 }

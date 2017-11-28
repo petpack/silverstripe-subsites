@@ -21,7 +21,8 @@ Behaviour.register({
 		}
 	},
 	
-	'#SubsiteActions a' : {
+	//DM: I don't think this "new subsite" item exists anywhere. was just #SubsiteActions a 
+	'#SubsiteActions a.new-subsite' : {
 		onclick: function() {
 			var subsiteName = prompt('Enter the name of the new site','');
 			if(subsiteName && subsiteName != '') {
