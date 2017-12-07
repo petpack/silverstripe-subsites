@@ -1,3 +1,28 @@
+function hideSubsiteMenu() {
+	form = jQuery('#SubsiteActions');
+	
+	if (form.hasClass('active')) {
+		
+		textbox = jQuery('#SubsiteActions #SubsiteSearch');
+		textbox.css({
+			background: 'none',
+			border: 'none',
+		});
+		
+		form.animate({height: '20px'},333);
+		form.removeClass('active');
+		
+	}
+	
+}
+
+jQuery(window).click(function(evt) {
+	//if we clicked on anything that isn't in the subsite menu, hide it
+	if (jQuery(evt.target).parents('#SubsiteActions').length == 0) {
+		hideSubsiteMenu();
+	}
+});
+
 Behaviour.register({
 	'#SubsiteActions select' : {
 		onchange: function() {
@@ -18,6 +43,45 @@ Behaviour.register({
 					errorMessage('Could not change subsite', response);
 				}
 			});
+		}
+	},
+	
+	'#SubsiteActions #SubsiteSearch': {
+		onfocus: function() {
+			textbox = jQuery('#SubsiteActions #SubsiteSearch');
+			textbox.css({
+				background: '#fff',
+				border: '1px inset #aaa',
+			});
+			textbox[0].select();
+			form = jQuery('#SubsiteActions');
+			form.animate({height: '540px'},333);
+			form.addClass('active');
+			//evt = jQuery("body").click(hideSubsiteMenu);
+			
+		}
+	},
+	
+	'ul#SubsitesSelect li a': {
+		onclick: function() {
+			itm=jQuery(this);
+			
+			textbox = jQuery('#SubsiteActions #SubsiteSearch');
+			textbox.val(itm.text());
+			
+			jQuery('ul#SubsitesSelect li a').removeClass('selected');
+			itm.addClass('selected');
+			
+			id = itm.attr('data-value');
+			
+			jQuery('input#SubsiteID').val(id);
+			
+			console.log("Switching to subsite " + id + " (" + itm.text() + ")");
+			
+			//TODO: set ID value in hidden input and do AJAX call.
+			
+			
+			hideSubsiteMenu();
 		}
 	},
 	

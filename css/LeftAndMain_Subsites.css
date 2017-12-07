@@ -3,18 +3,31 @@
  */
 #SubsiteActions {
 	position: absolute;
-	padding: 0;
+	padding: 3px;
 	margin: 0;
 	right: 0;
 	top: 0;
 	text-align: right;
 	margin-right: 140px;
-	/* height: 51px; 
-	border-bottom: 3px solid #d4d0c8;
-	*/
 	color: #333;
 	margin-top: 3px;
 	width: 200px;
+	
+	height: 20px;
+	overflow: hidden;
+	
+	border-radius: 3px;
+	border: 1px outset #aaa;
+	
+/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#eeeeee+0,cccccc+100;Gren+3D */
+background: rgb(238,238,238); /* Old browsers */
+background: -moz-linear-gradient(top,  rgba(238,238,238,1) 0%, rgba(204,204,204,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(204,204,204,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom,  rgba(238,238,238,1) 0%,rgba(204,204,204,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=0 ); /* IE6-9 */
+
+	
+	
 }
 
 #SubsiteActions fieldset {
@@ -69,8 +82,7 @@ ul#SubsitesSelect {
 	padding: 0px 5px;
 	box-sizing: border-box;
 	background: #fff;
-	border: 1px solid #333;
-	border-top: none;
+	border: 1px inset #aaa;
 }
 
 ul#SubsitesSelect li {
@@ -79,6 +91,7 @@ ul#SubsitesSelect li {
 	cursor: pointer;
 	white-space: nowrap;
 	overflow: hidden;
+	text-align: left;
 }
 
 /*
@@ -92,22 +105,26 @@ ul#SubsitesSelect li a {
 	color: #333;
 }
 
+ul#SubsitesSelect li a.selected {
+	font-weight:bold;
+}
+
 ul#SubsitesSelect li:hover a {
 	color: #33f;	
 }
 
 input#SubsiteSearch {
 	width: 100%;
-	border: 1px solid #333;
+	border: none;
+	background: none;
 	box-sizing: border-box;
+	height: 20px;
+	padding: 3px;
 }
 
 #SubsiteActions div.filters {
-	background: #fff;
+	/* background: #fff; */
 	padding: 3px;
-	border-left: 1px solid #333;
-	border-right: 1px solid #333;
-	border-bottom: 1px solid #dadada;
 	text-align: left;
 }
 
