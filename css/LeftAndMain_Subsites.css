@@ -11,7 +11,7 @@
 	margin-right: 140px;
 	color: #333;
 	margin-top: 3px;
-	width: 200px;
+	width: 240px;
 	
 	height: 20px;
 	overflow: hidden;
@@ -27,7 +27,7 @@ background: linear-gradient(to bottom,  rgba(238,238,238,1) 0%,rgba(204,204,204,
 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=0 ); /* IE6-9 */
 
 	
-	
+	z-index: 999;
 }
 
 #SubsiteActions fieldset {
@@ -105,6 +105,20 @@ ul#SubsitesSelect li a {
 	color: #333;
 }
 
+ul#SubsitesSelect li a:before {
+	height: 1em;
+	width: 1em;
+	font-family: FontAwesome;
+	content: "\f0ac";
+	margin-right: 3px;
+	color: #018F00;
+}
+
+ul#SubsitesSelect li a[data-type="client"]:before {
+	content: "\f007";
+	color: #333;
+}
+
 ul#SubsitesSelect li a.selected {
 	font-weight:bold;
 }
@@ -120,6 +134,32 @@ input#SubsiteSearch {
 	box-sizing: border-box;
 	height: 20px;
 	padding: 3px;
+	padding-right: 1.5em; /* to accommodate for caret */
+}
+
+#SubsiteActions.active input#SubsiteSearch {
+	background: #fff;
+	border: 1px inset #aaa;
+}
+
+#SubsiteActions div.icon {
+	width: 1em;
+	height: 1em;
+	text-align:center;
+	position: absolute;
+	top: 8px;
+	right: 0.5em;
+	cursor: pointer;
+	/* 
+	font-family: FontAwesome;
+	content: "\f0d7";
+	*/
+	display:block;
+	transition: transform 0.333s ease-in-out;
+}
+
+#SubsiteActions.active div.icon {
+	transform: rotate(180deg);
 }
 
 #SubsiteActions div.filters {

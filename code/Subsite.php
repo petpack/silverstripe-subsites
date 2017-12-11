@@ -519,7 +519,7 @@ JS;
 		$subsites = DataObject::get(
 			'Subsite',
 			"\"Subsite\".\"Title\" != ''",
-			'',
+			'Subsite.Title,Subsite.ClassName',
 			"LEFT JOIN \"Group_Subsites\" 
 				ON \"Group_Subsites\".\"SubsiteID\" = \"Subsite\".\"ID\"
 			INNER JOIN \"Group\" ON \"Group\".\"ID\" = \"Group_Subsites\".\"GroupID\"

@@ -1,19 +1,26 @@
+function showSubsiteMenu() {
+	//select all text
+	jQuery('#SubsiteActions #SubsiteSearch')[0].select();
+	
+	form = jQuery('#SubsiteActions');
+	form.animate({height: '540px'},333);
+	form.addClass('active');
+}
+
 function hideSubsiteMenu() {
 	form = jQuery('#SubsiteActions');
 	
 	if (form.hasClass('active')) {
-		
-		textbox = jQuery('#SubsiteActions #SubsiteSearch');
-		textbox.css({
-			background: 'none',
-			border: 'none',
-		});
-		
 		form.animate({height: '20px'},333);
 		form.removeClass('active');
-		
-	}
+		return true;
+	} else return false;
 	
+}
+
+function toggleSubsiteMenu() {
+	if (!hideSubsiteMenu())
+		showSubsiteMenu();
 }
 
 jQuery(window).click(function(evt) {
@@ -48,17 +55,12 @@ Behaviour.register({
 	
 	'#SubsiteActions #SubsiteSearch': {
 		onfocus: function() {
-			textbox = jQuery('#SubsiteActions #SubsiteSearch');
-			textbox.css({
-				background: '#fff',
-				border: '1px inset #aaa',
-			});
-			textbox[0].select();
-			form = jQuery('#SubsiteActions');
-			form.animate({height: '540px'},333);
-			form.addClass('active');
-			//evt = jQuery("body").click(hideSubsiteMenu);
-			
+			showSubsiteMenu();
+		}
+	},
+	'#SubsiteActions .icon': {
+		onclick: function() {
+			toggleSubsiteMenu();
 		}
 	},
 	
