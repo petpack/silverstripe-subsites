@@ -194,6 +194,9 @@ Behaviour.register({
 	"input#active-only": {
 		onchange: function() {
 			applySubsiteFilters();
+			if (jQuery('#SubsiteActions #SubsiteSearch').val() != jQuery('input#SubsiteID').attr('data-title')) {
+				doSubsiteSearch();
+			}
 		}
 	},
 	
