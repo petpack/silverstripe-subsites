@@ -103,10 +103,12 @@ function doSubsiteSearch() {
 	applySubsiteFilters();
 	jQuery('ul#SubsitesSelect li a').each(function() {
 		ele = jQuery(this);
-		if (ele.text().toLowerCase().indexOf(searchTerm) != -1) {
-			ele.parent().show();
-		} else
-			ele.parent().hide();
+		if (ele.parent().is(':visible')) {
+			if (ele.text().toLowerCase().indexOf(searchTerm) != -1) {
+				ele.parent().show();
+			} else
+				ele.parent().hide();
+		}
 	});
 	
 	hideSubsiteSpinner();
