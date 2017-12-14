@@ -275,8 +275,8 @@ JS;
 			return self::getSubsiteIDForDomain();
 		}
 		
-		if(isset($_REQUEST['SubsiteID']) && is_int($_REQUEST['SubsiteID']) ) {
-			$id = $_REQUEST['SubsiteID'];
+		if(isset($_REQUEST['SubsiteID']) && intval($_REQUEST['SubsiteID']) ) {
+			$id = intval($_REQUEST['SubsiteID']);
 			//error_log("Got subsite (" . $id . ") from Request.");
 		}
 		else {

@@ -1,3 +1,4 @@
+
 function showSubsiteMenu() {
 	//select all text
 	jQuery('#SubsiteActions #SubsiteSearch')[0].select();
@@ -5,7 +6,9 @@ function showSubsiteMenu() {
 	form = jQuery('#SubsiteActions');
 	form.animate({height: '540px'},333);
 	form.addClass('active');
+	applySubsiteFilters();	//reset the list to show 'all'
 }
+
 
 function hideSubsiteMenu() {
 	form = jQuery('#SubsiteActions');
@@ -13,6 +16,7 @@ function hideSubsiteMenu() {
 	if (form.hasClass('active')) {
 		form.animate({height: '20px'},333);
 		form.removeClass('active');
+		jQuery('#SubsiteActions #SubsiteSearch').val(jQuery('input#SubsiteID').attr('data-title'));
 		return true;
 	} else return false;
 	
@@ -23,14 +27,106 @@ function toggleSubsiteMenu() {
 		showSubsiteMenu();
 }
 
+/**
+ * Change the subsite to the one specified. This involves an ajax call.
+ * @param subsiteid	int	 new subsite ID
+ */
+function changeSubsite(subsiteid) {
+	if (!subsiteid)
+		return false;
+	
+	if($('Form_AddPageOptionsForm_SubsiteID')) {
+		$('Form_AddPageOptionsForm_SubsiteID').value = subsiteid;
+	}
+	showSubsiteSpinner();
+	
+	var request = new Ajax.Request(SiteTreeHandlers.controller_url + '/changesubsite?SubsiteID=' + subsiteid + '&ajax=1', {
+		onSuccess: function(response) {
+			hideSubsiteSpinner();
+			if ($('sitetree')) {
+				$('sitetree').innerHTML = response.responseText;
+				SiteTree.applyTo($('sitetree'));
+				$('sitetree').getTreeNodeByIdx(0).onselect();
+				$('siteTreeFilterList').reapplyIfNeeded();
+			}
+			//fire the change event for the #SubsiteID hidden input.
+			//	if you want to run custom code (e.g to refresh) on subsite change,
+			//	bind an event to $('#SubsiteActions #SubsiteID').change();
+			jQuery('#SubsiteActions #SubsiteID').trigger('change');
+		},
+		
+		onFailure: function(response) {
+			jQuery("#SubsiteActions .icons .fa-spinner").remove();
+			
+			errorMessage('Could not change subsite', response);
+		}
+	});
+}
+
 jQuery(window).click(function(evt) {
-	//if we clicked on anything that isn't in the subsite menu, hide it
 	if (jQuery(evt.target).parents('#SubsiteActions').length == 0) {
+		//element is not a child of the subsite menu - hide the menu.
 		hideSubsiteMenu();
 	}
 });
 
+/**
+ * Applies subsite filters. This is how you reset the subsite list to a 'show all' state
+ * @returns
+ */
+function applySubsiteFilters() {
+	
+	var activeOnly = jQuery("input#active-only").is(':checked');
+	
+	jQuery('ul#SubsitesSelect li a').each(function() {
+		ele = jQuery(this);
+		var show = true;
+		
+		if (activeOnly) {
+			if (ele.attr('data-active') != "1")
+				show = false;
+		}
+		
+		if (show)
+			ele.parent().show();
+		else
+			ele.parent().hide();
+		
+	});
+}
+
+//var used to store timeout for search
+var searchTimeout = false;
+
+function doSubsiteSearch() {
+	var searchTerm = jQuery('#SubsiteActions #SubsiteSearch').val().toLowerCase();
+	applySubsiteFilters();
+	jQuery('ul#SubsitesSelect li a').each(function() {
+		ele = jQuery(this);
+		if (ele.text().toLowerCase().indexOf(searchTerm) != -1) {
+			ele.parent().show();
+		} else
+			ele.parent().hide();
+	});
+	
+	hideSubsiteSpinner();
+	
+}
+
+function showSubsiteSpinner() {
+	if (jQuery("#SubsiteActions .icons .fa-spinner").length) return false;	//there can be only one!
+	
+	spinner = jQuery('<i class="fa fa-spin fa-spinner" ></i>');
+	jQuery('#SubsiteActions .icons').prepend(spinner);
+}
+
+function hideSubsiteSpinner() {
+	jQuery("#SubsiteActions .icons .fa-spinner").remove();
+}
+
 Behaviour.register({
+	
+	//DM: @TODO: this function is now defunct, remove it:
 	'#SubsiteActions select' : {
 		onchange: function() {
 			if($('Form_AddPageOptionsForm_SubsiteID')) {
@@ -56,9 +152,16 @@ Behaviour.register({
 	'#SubsiteActions #SubsiteSearch': {
 		onfocus: function() {
 			showSubsiteMenu();
+		},
+		onkeyup: function() {
+			showSubsiteSpinner();
+			
+			//we don't run the search immediately, we wait 333ms for another keystroke
+			if (searchTimeout) window.clearTimeout(searchTimeout);
+			searchTimeout = window.setTimeout(doSubsiteSearch,666);
 		}
 	},
-	'#SubsiteActions .icon': {
+	'#SubsiteActions .icons .caret': {
 		onclick: function() {
 			toggleSubsiteMenu();
 		}
@@ -76,14 +179,19 @@ Behaviour.register({
 			
 			id = itm.attr('data-value');
 			
-			jQuery('input#SubsiteID').val(id);
+			ele = jQuery('input#SubsiteID')
+			ele.val(id);
+			ele.attr('data-title',itm.text());
 			
-			console.log("Switching to subsite " + id + " (" + itm.text() + ")");
-			
-			//TODO: set ID value in hidden input and do AJAX call.
-			
+			changeSubsite(id);
 			
 			hideSubsiteMenu();
+		}
+	},
+	
+	"input#active-only": {
+		onchange: function() {
+			applySubsiteFilters();
 		}
 	},
 	
